@@ -95,6 +95,50 @@ namespace _190820SmoothLine
             this.Close();
         }
 
+        //确定按钮，执行平滑线操作
+        private void button3_Click(object sender, EventArgs e)
+        {
+            //判断文本框下拉框是否为空
+            if (textBox1.Text.Trim() == "" || textBox2.Text.Trim() == null ||
+                comboBox1.Text.Trim() == "" || textBox3.Text.Trim() == "" ||
+                comboBox2.Text.Trim() == "")
+            {
+                MessageBox.Show("请输入正确的信息!");
+                return;
+            }
+            //判断输入的容差是否为
+            if (!Regex.IsMatch(textBox3.Text.Trim(), "^-?\\d+$|^(-?\\d+)(\\.\\d+)?$") && (Convert.ToDouble(textBox3.Text.Trim()) >= 0))
+            {
+                MessageBox.Show("容差输入错误");
+                return;
+            }
+            string pAlgorithm = "";
+            double pTolerence;
+            try
+            {
+                //根据选择的平滑算法来确定参数
+                switch (comboBox1.Text.Trim())
+                {
+                    case "贝塞尔插值":
+                        pAlgorithm = "BEZIER_INTERPOLATION";//该方法容差为0
+                        SmoothContour(inFeatureClass, outPath, pAlgorithm, 0);
+                        break;
+                    case "指数核多项式逼近":
+                        pAlgorithm = "PAEK";
+                        pTolerence = Convert.ToDouble(textBox3.Text.Trim());
+                        SmoothContour(inFeatureClass, outPath, pAlgorithm, pTolerence);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (COMException ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+        }
+
         #region 封装方法
         /// <summary>
         /// 加载shp的方法
@@ -136,50 +180,5 @@ namespace _190820SmoothLine
             //}
         }
         #endregion
-
-        //确定按钮，执行平滑线操作
-        private void button3_Click(object sender, EventArgs e)
-        {
-            //判断文本框下拉框是否为空
-            if(textBox1.Text.Trim()==""||textBox2.Text.Trim()==null||
-                comboBox1.Text.Trim()==""||textBox3.Text.Trim()==""||
-                comboBox2.Text.Trim()=="")
-            {
-                MessageBox.Show("请输入正确的信息!");
-                return;
-            }
-            //判断输入的容差是否为
-            if(!Regex.IsMatch(textBox3.Text.Trim(), "^-?\\d+$|^(-?\\d+)(\\.\\d+)?$") && (Convert.ToDouble(textBox3.Text.Trim())>=0))
-            {
-                MessageBox.Show("容差输入错误");
-                return;
-            }
-            string pAlgorithm = "";
-            double pTolerence;
-            try
-            {
-                //根据选择的平滑算法来确定参数
-                switch (comboBox1.Text.Trim())
-                {
-                    case "贝塞尔插值":
-                        pAlgorithm = "BEZIER_INTERPOLATION";//该方法容差为0
-                        SmoothContour(inFeatureClass, outPath, pAlgorithm, 0);
-                        break;
-                    case "指数核多项式逼近":
-                        pAlgorithm = "PAEK";
-                        pTolerence = Convert.ToDouble(textBox3.Text.Trim());
-                        SmoothContour(inFeatureClass, outPath, pAlgorithm, pTolerence);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch(COMException ex)
-            {
-                MessageBox.Show(ex.Message);
-                return;
-            }
-        }
-
     }
 }
